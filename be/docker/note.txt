@@ -1,0 +1,14 @@
+use admin
+db.createUser(
+  {
+     user: "root",
+     pwd: "root",
+     roles:["root"]
+  }
+);
+
+docker-compose up -d
+docker-compose down
+docker exec -it mongo /bin/sh
+
+mongoimport --db ecom --collection property --authenticationDatabase admin --username root --password root --drop --file property.json --jsonArray
