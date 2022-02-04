@@ -4,6 +4,8 @@ import Script from 'next/script'
 import { getCookie, removeCookies } from 'cookies-next'
 import axios from "../../configs/axios"
 import Swal from "sweetalert2"
+import Link from 'next/link'
+import jwt from 'jsonwebtoken'
 
 
 interface DashboardProps {
@@ -48,6 +50,10 @@ class Dashboard extends React.Component {
     }
 
     render() {
+
+        const myToken: any = getCookie('token')
+        const user: any = jwt.decode(myToken)
+
         return(
             <Fragment>
                 <Head>
@@ -168,10 +174,12 @@ class Dashboard extends React.Component {
                     </nav>
 
                     <aside className="main-sidebar sidebar-dark-primary elevation-4">
-                        <a href="/auth/dashboard" className="brand-link">
-                            <img src="/assets/images/logo.png" alt="logo" className="brand-image img-circle elevation-3"/>
-                            <span className="brand-text font-weight-light">Beauty</span>
-                        </a>
+                        <Link href="/dashboard">
+                            <a className="brand-link">
+                                <img src="/assets/images/logo.png" alt="logo" className="brand-image img-circle elevation-3"/>
+                                <span className="brand-text font-weight-light">Beauty</span>
+                            </a>
+                        </Link>
 
                         <div className="sidebar">
                             <div className="user-panel mt-3 pb-3 mb-3 d-flex">
@@ -186,10 +194,12 @@ class Dashboard extends React.Component {
                             <nav className="mt-2">
                                 <ul className="nav nav-pills nav-sidebar flex-column nav-child-indent" data-widget="treeview" role="menu" data-accordion="false">
                                     <li className="nav-item">
-                                        <a href="/auth/dashboard" className="nav-link">
-                                            <i className="nav-icon fas fa-tachometer-alt"></i>
-                                            <p>Dashboard</p>
-                                        </a>
+                                        <Link href="/dashboard">
+                                            <a className="nav-link">
+                                                <i className="nav-icon fas fa-tachometer-alt"></i>
+                                                <p>Dashboard</p>
+                                            </a>
+                                        </Link>
                                     </li>
                                     <li className="nav-item has-treeview">
                                         <a href="#" className="nav-link">
@@ -284,46 +294,53 @@ class Dashboard extends React.Component {
                                             </li>
                                         </ul>
                                     </li>
-                                    <li className="nav-item has-treeview">
-                                        <a href="#" className="nav-link">
-                                            <i className="nav-icon fas fa-cogs"></i>
-                                            <p>
-                                                Settings
-                                                <i className="right fas fa-angle-left"></i>
-                                            </p>
-                                        </a>
-                                        <ul className="nav nav-treeview">
-                                            <li className="nav-item has-treeview">
-                                                <a href="#" className="nav-link">
-                                                    <i className="fas fa-users-cog nav-icon"></i>
-                                                    <p>
-                                                        <span>User & Role</span>
-                                                        <i className="right fas fa-angle-left"></i>
-                                                    </p>
-                                                </a>
-                                                <ul className="nav nav-treeview">
-                                                    <li className="nav-item">
-                                                        <a href="/auth/roles" className="nav-link">
-                                                            <i className="fas fa-user-shield nav-icon"></i>
-                                                            <p>Roles</p>
-                                                        </a>
-                                                    </li>
-                                                    <li className="nav-item">
-                                                        <a href="/auth/permissions" className="nav-link">
-                                                            <i className="fas fa-user-cog nav-icon"></i>
-                                                            <p>Permissions</p>
-                                                        </a>
-                                                    </li>
-                                                    <li className="nav-item">
-                                                        <a href="/auth/users" className="nav-link">
-                                                            <i className="fas fa-users nav-icon"></i>
-                                                            <p>Users</p>
-                                                        </a>
-                                                    </li>
-                                                </ul>
-                                            </li>
-                                        </ul>
-                                    </li>
+
+                                    {
+                                        (user && user.role && user.role === 'admin') &&
+                                        <li className="nav-item has-treeview">
+                                            <a href="#" className="nav-link">
+                                                <i className="nav-icon fas fa-cogs"></i>
+                                                <p>
+                                                    Settings
+                                                    <i className="right fas fa-angle-left"></i>
+                                                </p>
+                                            </a>
+                                            <ul className="nav nav-treeview">
+                                                <li className="nav-item has-treeview">
+                                                    <a href="#" className="nav-link">
+                                                        <i className="fas fa-users-cog nav-icon"></i>
+                                                        <p>
+                                                            <span>User & Role</span>
+                                                            <i className="right fas fa-angle-left"></i>
+                                                        </p>
+                                                    </a>
+                                                    <ul className="nav nav-treeview">
+                                                        <li className="nav-item">
+                                                            <Link href="/dashboard/roles">
+                                                                <a className="nav-link">
+                                                                    <i className="fas fa-user-shield nav-icon"></i>
+                                                                    <p>Roles</p>
+                                                                </a>
+                                                            </Link>
+                                                        </li>
+                                                        <li className="nav-item">
+                                                            <a href="/auth/permissions" className="nav-link">
+                                                                <i className="fas fa-user-cog nav-icon"></i>
+                                                                <p>Permissions</p>
+                                                            </a>
+                                                        </li>
+                                                        <li className="nav-item">
+                                                            <a href="/auth/users" className="nav-link">
+                                                                <i className="fas fa-users nav-icon"></i>
+                                                                <p>Users</p>
+                                                            </a>
+                                                        </li>
+                                                    </ul>
+                                                </li>
+                                            </ul>
+                                        </li>
+                                    }
+
                                     <li className="nav-item">
                                         <a onClick={this.handleLogout} className="nav-link" href="#">
                                             <i className="nav-icon fas fa-power-off"></i>
