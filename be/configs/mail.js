@@ -14,7 +14,7 @@ const transporter = nodemailer.createTransport({
 
 module.exports.sendConfirmationEmail = (name, email, confirmCode) => {
     let tmp = `${process.env.MAIL_TEMPLATE_PATH}/views/templates/mails/email-confirm.ejs`
-    let url = `${process.env.FE_URL}/confirm/${confirmCode}`
+    let url = `${process.env.FE_URL}/auth/confirm/${confirmCode}`
 
     ejs.renderFile(tmp, {name, email, confirmCode, url}, function (err, data) {
         if (err) {
@@ -40,7 +40,7 @@ module.exports.sendConfirmationEmail = (name, email, confirmCode) => {
 
 module.exports.sendResetEmail = (name, email, confirmCode) => {
     let tmp = `${process.env.MAIL_TEMPLATE_PATH}/views/templates/mails/reset-password.ejs`
-    let url = `${process.env.FE_URL}/reset/${confirmCode}`
+    let url = `${process.env.FE_URL}/auth/reset/${confirmCode}`
 
     ejs.renderFile(tmp, {name, email, confirmCode, url}, function (err, data) {
         if (err) {
