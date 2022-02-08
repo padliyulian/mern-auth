@@ -6,14 +6,20 @@ import axios from "../../configs/axios"
 import Swal from "sweetalert2"
 import Link from 'next/link'
 import jwt from 'jsonwebtoken'
+import { withRouter, NextRouter } from 'next/router'
 
 
-interface DashboardProps {
+interface WithRouterProps {
+    router: NextRouter
+}
+
+interface DashboardProps extends WithRouterProps {
     children: ReactNode
 }
 
-class Dashboard extends React.Component {
-    state = {
+class Dashboard extends React.Component<DashboardProps> {
+    state: any = {
+        user: {},
         settings: [
             'roles',
             'permissions',
@@ -22,9 +28,33 @@ class Dashboard extends React.Component {
     }
 
     componentDidMount(){
+        // console.log(this.props.router.pathname)
         document.body.classList.add('hold-transition')
         document.body.classList.add('sidebar-mini')
         document.body.classList.add('layout-fixed')
+
+        this.handleUser()
+
+        setTimeout(() => {
+            if (this.state.user.role !== 'admin') {
+                const adminMenu = document.querySelector('.admin-only')
+                if (adminMenu) {
+                    adminMenu.remove()
+                }
+            }
+        }, 100);
+    }
+
+    handleUser = () => {
+        const myToken: any = getCookie('token')
+        // const user: any = jwt.decode(myToken)
+        this.setState({
+            user: jwt.decode(myToken)
+        })
+    }
+
+    handleClickMenu = () => {
+        document.body.classList.remove('sidebar-open')
     }
 
     handleLogout = (e: { preventDefault: () => void }) => {
@@ -50,10 +80,6 @@ class Dashboard extends React.Component {
     }
 
     render() {
-
-        const myToken: any = getCookie('token')
-        const user: any = jwt.decode(myToken)
-
         return(
             <Fragment>
                 <Head>
@@ -184,18 +210,20 @@ class Dashboard extends React.Component {
                         <div className="sidebar">
                             <div className="user-panel mt-3 pb-3 mb-3 d-flex">
                                 <div className="image">
-                                    <img src="/assets/images/woman.png" className="img-circle elevation-2" alt="avatar"/>
+                                    <img src={ this.state.user && this.state.user.photo ? `${process.env.REACT_APP_ASSETS_URL}/images/${this.state.user.photo}`:'/assets/images/woman.png' } className="img-circle elevation-2" alt="avatar"/>
                                 </div>
                                 <div className="info">
-                                    <a href="#" className="d-block">username</a>
+                                    <a href="#" className="d-block">
+                                        { this.state.user && this.state.user.name }
+                                    </a>
                                 </div>
                             </div>
 
                             <nav className="mt-2">
                                 <ul className="nav nav-pills nav-sidebar flex-column nav-child-indent" data-widget="treeview" role="menu" data-accordion="false">
-                                    <li className="nav-item">
+                                    <li className={`nav-item ${this.props.router.pathname === '/dashboard' && 'show'}`}>
                                         <Link href="/dashboard">
-                                            <a className="nav-link">
+                                            <a onClick={this.handleClickMenu} className="nav-link">
                                                 <i className="nav-icon fas fa-tachometer-alt"></i>
                                                 <p>Dashboard</p>
                                             </a>
@@ -295,9 +323,8 @@ class Dashboard extends React.Component {
                                         </ul>
                                     </li>
 
-                                    {
-                                        (user && user.role && user.role === 'admin') &&
-                                        <li className="nav-item has-treeview">
+
+                                        <li className={`admin-only nav-item has-treeview ${this.state.settings.includes(this.props.router.pathname.split('/')[2]) && 'menu-open'}`}>
                                             <a href="#" className="nav-link">
                                                 <i className="nav-icon fas fa-cogs"></i>
                                                 <p>
@@ -306,7 +333,7 @@ class Dashboard extends React.Component {
                                                 </p>
                                             </a>
                                             <ul className="nav nav-treeview">
-                                                <li className="nav-item has-treeview">
+                                                <li className={`nav-item has-treeview ${this.state.settings.includes(this.props.router.pathname.split('/')[2]) && 'menu-open'}`}>
                                                     <a href="#" className="nav-link">
                                                         <i className="fas fa-users-cog nav-icon"></i>
                                                         <p>
@@ -315,31 +342,35 @@ class Dashboard extends React.Component {
                                                         </p>
                                                     </a>
                                                     <ul className="nav nav-treeview">
-                                                        <li className="nav-item">
+                                                        <li className={`nav-item ${this.props.router.pathname.split('/')[2] === 'roles' && 'show'}`}>
                                                             <Link href="/dashboard/roles">
-                                                                <a className="nav-link">
+                                                                <a onClick={this.handleClickMenu} className="nav-link">
                                                                     <i className="fas fa-user-shield nav-icon"></i>
                                                                     <p>Roles</p>
                                                                 </a>
                                                             </Link>
                                                         </li>
-                                                        <li className="nav-item">
-                                                            <a href="/auth/permissions" className="nav-link">
-                                                                <i className="fas fa-user-cog nav-icon"></i>
-                                                                <p>Permissions</p>
-                                                            </a>
+                                                        <li className={`nav-item ${this.props.router.pathname.split('/')[2] === 'permissions' && 'show'}`}>
+                                                            <Link href="/dashboard/permissions">
+                                                                <a onClick={this.handleClickMenu}  className="nav-link">
+                                                                    <i className="fas fa-user-cog nav-icon"></i>
+                                                                    <p>Permissions</p>
+                                                                </a>
+                                                            </Link>
                                                         </li>
-                                                        <li className="nav-item">
-                                                            <a href="/auth/users" className="nav-link">
-                                                                <i className="fas fa-users nav-icon"></i>
-                                                                <p>Users</p>
-                                                            </a>
+                                                        <li className={`nav-item ${this.props.router.pathname.split('/')[2] === 'users' && 'show'}`}>
+                                                            <Link href="/dashboard/users">
+                                                                <a onClick={this.handleClickMenu}  className="nav-link">
+                                                                    <i className="fas fa-users nav-icon"></i>
+                                                                    <p>Users</p>
+                                                                </a>
+                                                            </Link>
                                                         </li>
                                                     </ul>
                                                 </li>
                                             </ul>
                                         </li>
-                                    }
+                                    
 
                                     <li className="nav-item">
                                         <a onClick={this.handleLogout} className="nav-link" href="#">
@@ -380,4 +411,4 @@ class Dashboard extends React.Component {
     }
 }
 
-export default Dashboard
+export default withRouter(Dashboard)

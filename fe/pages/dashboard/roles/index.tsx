@@ -107,8 +107,7 @@ class Role extends React.Component {
                                 `${res.data.msg}`,
                                 'success'
                             )
-
-                            // this.handleResetPage()
+                            this.handleResetPage('delete')
                         }
                     })
                     .catch(err => console.log(err))
@@ -117,7 +116,7 @@ class Role extends React.Component {
     }
 
     handleResetPage = (e: any) => {
-        if (e) e.preventDefault()
+        if (e && e !== 'delete') e.preventDefault()
         this.setState({
             data : {
                 roles : [],
@@ -159,12 +158,12 @@ class Role extends React.Component {
                         <div className="container-fluid">
                             <div className="row mb-2">
                                 <div className="col-sm-6">
-                                    <h1>Role</h1>
+                                    <h1>Roles</h1>
                                 </div>
                                 <div className="col-sm-6">
                                     <ol className="breadcrumb float-sm-right">
                                         <li className="breadcrumb-item active">
-                                            Role
+                                            Roles
                                         </li>
                                     </ol>
                                 </div>
